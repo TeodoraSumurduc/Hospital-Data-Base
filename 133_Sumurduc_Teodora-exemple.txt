@@ -1,0 +1,148 @@
+--12
+--1
+--1.Sa se afiseze detalii despre pacientii care sunt internari intr-un spital de catre un medic care are 2 litere de ‘a’ in nume.
+--Am folosit:subcereri sincronizateîn care intervin cel puțin 3 tabele
+SELECT *
+FROM Pacienti
+WHERE cod_pacient IN (
+    SELECT cod_pacient
+    FROM Internari
+    WHERE cod_internare IN (
+        SELECT cod_internare
+        FROM Trateaza
+        WHERE cod_medic IN (
+            SELECT cod_medic
+            FROM Medici
+            WHERE lower(nume) like '%a%a%'
+        )
+    )
+);
+
+--2.Sa se afiseze numele si prenumele pacientului, numele si prenumele medicului care il trateaza pe pacient(daca exista)
+--si diagnosticul , in cazul in care exista si este identificat dupa anul 2000.Sa se ordoneze descrescator dupa numele pacientului. 
+--Am folosit:ordonărisi utilizarea funcțiilor NVL și DECODE
+SELECT p.nume,p.prenume,nvl(m.nume, 'Nu exista!') AS nume_medic,nvl(M.prenume, 'Nu exista!') AS prenume_medic,
+    decode(FM.diagnostic, NULL, 'Fara diagnostic', FM.diagnostic) AS diagnostic
+FROM pacienti p LEFT JOIN (select t.cod_pacient, m.nume, m.prenume
+                           from trateaza t
+                           join medici m ON t.cod_medic = m.cod_medic) m ON p.cod_pacient = m.cod_pacient
+    LEFT JOIN (
+        select cod_pacient, diagnostic
+        from fise_medicale
+        WHERE data >= '01-01-2000'
+    ) fm ON p.cod_pacient = fm.cod_pacient
+order by p.nume desc;
+
+--3.3.Sa se afiseze denumirea spitalului, a sectiei, nr de pacienti si varsta medie din fiecare sectie. Spitalul trebuie sa aiba codul un numar par, sectia trebuie sa contina in nume litera ‘a’, iar pacientul trebuie sa fie femeie ( adica sexul sa fie ‘F’). Sa se ordoneze crescator dupa numele spitalului si descrescator dupa numele sectiei.
+--Am folosit:grupări de datecu subcereri nesincronizate in care intervin cel putin 3 tabele, funcții grup, filtrare la nivel degrupuri(in cadrul aceleiasi cereri)
+--subcereri nesincronizateîn clauza FROM
+SELECT s.denumire spital,sc.nume sectie,count(*) numar_pacienti,
+avg(to_char(sysdate,'YYYY') - to_char(p.data_nasterii,'YYYY')) AS varsta_medie
+FROM (select *
+      from spital
+      where mod(cod_spital,2)=0) s
+JOIN ( select *
+       from sectii
+       where lower(nume) like '%a%'
+    ) sc ON s.cod_spital = sc.cod_spital
+join medici m on m.cod_sectie=sc.cod_sectie
+JOIN TRATEAZA T ON T.COD_medic=m.COD_medic
+JOIN (select *
+      from pacienti
+      where sex ='F'
+    ) p ON T.cod_pacient=p.cod_pacient
+GROUP BY s.denumire,sc.nume
+HAVING COUNT(*)>0
+ORDER BY spital ASC,sectie DESC;
+
+--4.Sa se afiseze codul pacientului, numele sau si al medicului intreg la care se trateaza intreg, sexul, varsta peste 3 luni si prima zi de luni dupa ce s-a angajat medicul. Pacientul trebuie sa aiba o afectiune anterioara care sa contina litera ‘e’. Sa se ordoneze descrescator dupa varsta.
+--Am utilizat:
+--Utilizarea expresiei CASE
+--Utilizarea functiilor pentru date calendaristice ADD_MONTHS si NEXT_DAY
+--Utilizarea functiilor pentur siruri de caractere CONCAT si INITCAP
+SELECT p.cod_pacient Cod,concat(concat(initcap(p.nume),' '),initcap(p.prenume)) nume_pacient,concat(concat(initcap(m.nume),' '),
+initcap(m.prenume)) nume_medic,
+case
+    when p.sex='M' then 'Masculin'
+    when p.sex='F' then 'Feminin'
+    else 'Necunoscut'
+    end Gender,
+    to_char(add_months(sysdate,3),'YYYY')-to_char(p.data_nasterii,'YYYY')  varsta_pacient_6luni,
+    next_day(m.data_angajare,'luni') zi_angajare
+FROM
+    pacienti p
+    JOIN trateaza t on t.cod_pacient=p.cod_pacient
+    JOIN medici m ON t.cod_medic = m.cod_medic
+    JOIN sectii sc on sc.cod_sectie=m.cod_sectie
+    JOIN spital s ON sc.cod_spital = s.cod_spital
+WHERE p.cod_pacient IN (SELECT cod_pacient
+                        FROM istoric_medical
+                        WHERE lower(afectiune_anterioara) like '%e%')
+ORDER BY varsta_pacient_6luni DESC;
+
+--5.Sa se afiseze codul si denumirea elementelor din inventar care au un număr de bucăți mai mare decât media tuturor elementelor din inventar.
+--Am folosit elementele: 
+--utilizarea bloc de cerere(clauza WITH)
+WITH medie_inventar AS (
+    SELECT avg(nr_bucati) medie
+    FROM inventar
+)
+SELECT i.cod_element,i.denumire
+FROM inventar i CROSS JOIN medie_inventar mi
+WHERE i.nr_bucati > mi.medie;
+
+--13
+UPDATE MEDICI
+SET cod_sectie=112
+WHERE cod_medic IN (
+    SELECT cod_medic
+    FROM SECTII
+    WHERE nume = 'Cardiologie'
+);
+
+DELETE FROM Inventar
+WHERE cod_element IN (
+    SELECT cod_element
+    FROM Inventar
+    WHERE nr_bucati<100
+);
+
+UPDATE INVENTAR
+SET nr_bucati = (
+    SELECT nr_bucati*2
+    FROM INVENTAR
+    WHERE cod_element=150
+)
+WHERE cod_element=233;
+
+--15
+--1.Obțineți toate informațiile despre pacienți și medicamente, inclusiv detaliile despre secțiile unde lucrează medicii, și afișați aceste 
+--informații împreună cu toate internările și fisele medicale asociate pacienților, chiar și în cazul în care nu există internări sau fise 
+--medicale asociate.
+select p.*, m.*, s.*, i.*, f.*
+from pacienti p
+left outer join trateaza t on p.cod_pacient=t.cod_pacient
+left outer join medici m on t.cod_medic=m.cod_medic
+left outer join sectii s on m.cod_sectie=s.cod_sectie
+left outer join internari i on t.cod_internare=i.cod_internare
+left outer join fise_medicale f on p.cod_pacient=f.cod_pacient;
+
+--2.Afișați primele 5 secții în funcție de numărul total de pacienți internați în fiecare secție.
+select s.cod_sectie, s.nume, COUNT(i.cod_internare) AS numar_pacienti
+from sectii s
+left join medici m on s.cod_sectie=m.cod_sectie
+left join trateaza t on m.cod_medic=t.cod_medic
+left join internari i ON t.cod_internare = i.cod_internare
+where rownum<=6
+group by s.cod_sectie, s.nume
+order by count(i.cod_internare) desc;
+
+--3.Sa se afizele denumirea si nrumarul de utilizari al primelor 2 medicamente care au fost utilizate cel mai mult in retete.
+SELECT denumire, numar_utilizari
+FROM (
+  SELECT M.denumire, COUNT(*) AS numar_utilizari
+  FROM RETETE R
+  JOIN MEDICAMENTE M ON R.cod_reteta = M.cod_reteta
+  GROUP BY M.denumire
+  ORDER BY numar_utilizari DESC
+) WHERE ROWNUM <= 2;

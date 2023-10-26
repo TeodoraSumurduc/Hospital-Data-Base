@@ -1,0 +1,692 @@
+create table SPITAL(
+cod_spital NUMBER(5),
+adresa VARCHAR(100),
+nr_telefon NUMBER(11),
+denumire VARCHAR(25),
+CONSTRAINT PK_SPITAL PRIMARY KEY(cod_spital)
+);
+create table SECTII(
+cod_sectie NUMBER(5),
+nume VARCHAR(25),
+cod_spital NUMBER(5),
+CONSTRAINT PK_SECTII PRIMARY KEY (cod_sectie)
+);
+
+ALTER TABLE SECTII
+ADD CONSTRAINT FK_COD_SPITAL_SECTII FOREIGN KEY (COD_SPITAL)
+REFERENCES SPITAL(COD_SPITAL);
+
+create table MEDICI(
+cod_medic NUMBER(5),
+nume VARCHAR(25),
+prenume VARCHAR(25),
+data_angajare DATE,
+cod_sectie NUMBER(5),
+CONSTRAINT PK_MEDICI PRIMARY KEY (cod_medic));
+
+ALTER TABLE MEDICI
+ADD CONSTRAINT FK_COD_SECTII_MEDICI FOREIGN KEY (COD_SECTIE)
+REFERENCES SECTII(COD_SECTIE);
+
+CREATE TABLE ASISTENTE(
+COD_ASISTENTA NUMBER(5),
+nume VARCHAR(25),
+prenume VARCHAR(25),
+data_angajare DATE,
+cod_sectie NUMBER(5),
+CONSTRAINT PK_ASISTENTE PRIMARY KEY (COD_ASISTENTA));
+
+ALTER TABLE ASISTENTE
+ADD CONSTRAINT FK_COD_SECTII_ASISTENTE FOREIGN KEY (COD_SECTIE)
+REFERENCES SECTII(COD_SECTIE);
+
+CREATE TABLE PACIENTI(
+COD_PACIENT NUMBER(5),
+nume VARCHAR(25),
+prenume VARCHAR(25),
+data_nasterii DATE,
+sex VARCHAR(2),
+nr_telefon NUMBER(11),
+CONSTRAINT PK_PACIENTI PRIMARY KEY (COD_PACIENT));
+
+create table FISE_MEDICALE(
+cod_fisa NUMBER(5),
+cod_pacient NUMBER(5),
+cod_medic NUMBER(5),
+data DATE,
+diagnostic VARCHAR(25),
+CONSTRAINT PK_FISE_MEDICALE PRIMARY KEY (COD_FISA));
+
+ALTER TABLE FISE_MEDICALE
+ADD CONSTRAINT FK_COD_PACIENTI_FISE_MEDICALE FOREIGN KEY (COD_PACIENT)
+REFERENCES PACIENTI(COD_PACIENT);
+
+ALTER TABLE FISE_MEDICALE
+ADD CONSTRAINT FK_COD_MEDICI_FISE_MEDICALE FOREIGN KEY (COD_MEDIC)
+REFERENCES MEDICI(COD_MEDIC);
+
+CREATE TABLE INTERNARI(
+COD_INTERNARE NUMBER(5),
+DATA_INTERNARII DATE,
+DATA_EXTERNARII DATE,
+CONSTRAINT PK_FINTERNARI PRIMARY KEY (COD_INTERNARE));
+
+CREATE TABLE INVENTAR(
+COD_ELEMENT NUMBER(5),
+DENUMIRE VARCHAR(25),
+NR_BUCATI NUMBER(5),
+CONSTRAINT PK_INVENTAR PRIMARY KEY (COD_ELEMENT));
+
+ALTER TABLE INVENTAR
+ADD (COD_SECTIE NUMBER(5));
+
+ALTER TABLE INVENTAR
+ADD CONSTRAINT FK_COD_SECTII_INVENTAR FOREIGN KEY (COD_SECTIE)
+REFERENCES SECTII(COD_SECTIE);
+
+CREATE  TABLE LABORATOR(
+COD_LABORATOR NUMBER(5),
+COD_PACIENT NUMBER(5),
+TIP_TEST VARCHAR(25),
+REZULTAT VARCHAR(25),
+CONSTRAINT PK_LABORATOR PRIMARY KEY (COD_LABORATOR));
+
+ALTER TABLE LABORATOR
+ADD CONSTRAINT FK_COD_PACIENTI_LABORATOR FOREIGN KEY (COD_PACIENT)
+REFERENCES PACIENTI(COD_PACIENT);
+
+CREATE TABLE ISTORIC_MEDICAL(
+COD_ISTORIC NUMBER(5),
+COD_PACIENT NUMBER(5),
+AFECTIUNE_ANTERIOARA VARCHAR(100),
+TRATAMENT_ANTERIOR VARCHAR(100),
+CONSTRAINT PK_ISTORIC_MEDICAL PRIMARY KEY (COD_ISTORIC));
+
+ALTER TABLE ISTORIC_MEDICAL
+ADD CONSTRAINT FK_COD_PACIENTI_ISTORIC FOREIGN KEY (COD_PACIENT)
+REFERENCES PACIENTI(COD_PACIENT);
+
+create table RETETE(
+COD_RETETA NUMBER(5),
+COD_PACIENT NUMBER(5),
+CONSTRAINT PK_RETETE PRIMARY KEY (COD_RETETA));
+
+ALTER TABLE RETETE
+ADD CONSTRAINT FK_COD_PACIENTI_RETETE FOREIGN KEY (COD_PACIENT)
+REFERENCES PACIENTI(COD_PACIENT);
+
+CREATE TABLE MEDICAMENTE(
+COD_RETETA NUMBER(5),
+DENUMIRE VARCHAR(25),
+DOZA  NUMBER(5),
+CONSTRAINT PK_MEDICAMENTE PRIMARY KEY (COD_RETETA));
+
+ALTER TABLE MEDICAMENTE
+ADD CONSTRAINT FK_COD_RETETE_MEDICAMENTE FOREIGN KEY (COD_RETETA)
+REFERENCES RETETE(COD_RETETA);
+
+CREATE TABLE CHIRURGI(
+COD_MEDIC NUMBER(5));
+
+ALTER TABLE CHIRURGI
+ADD CONSTRAINT FK_COD_MEDICI_CHIRURGI FOREIGN KEY (cod_medic)
+REFERENCES MEDICI(cod_medic);
+
+CREATE TABLE AJUTA(
+COD_ASISTENTA NUMBER(5),
+COD_MEDIC NUMBER(5),
+CONSTRAINT PK_AJUTA PRIMARY KEY (COD_ASISTENTA,COD_MEDIC));
+
+ALTER TABLE AJUTA
+ADD CONSTRAINT FK_COD_ASISTENTE_AJUTA FOREIGN KEY (COD_ASISTENTA)
+REFERENCES ASISTENTE(COD_ASISTENTA);
+
+ALTER TABLE AJUTA
+ADD CONSTRAINT FK_COD_MEDICI_AJUTA FOREIGN KEY (COD_MEDIC)
+REFERENCES MEDICI(COD_MEDIC);
+
+CREATE TABLE OPEREAZA(
+COD_MEDIC NUMBER(5),
+COD_PACIENT NUMBER(5),
+CONSTRAINT PK_OPEREAZA PRIMARY KEY (COD_MEDIC,COD_PACIENT)
+);
+
+ALTER TABLE OPEREAZA
+ADD CONSTRAINT FK_COD_PACIENTI_OPEREAZA FOREIGN KEY (COD_PACIENT)
+REFERENCES PACIENTI(COD_PACIENT);
+
+ALTER TABLE OPEREAZA
+ADD CONSTRAINT FK_COD_MEDICI_OPEREAZA FOREIGN KEY (COD_MEDIC)
+REFERENCES MEDICI(COD_MEDIC);
+
+CREATE TABLE TRATEAZA(
+COD_PACIENT NUMBER(5),
+COD_MEDIC NUMBER(5),
+COD_INTERNARE  NUMBER(5),
+CONSTRAINT PK_TRATEAZA PRIMARY KEY (COD_PACIENT,COD_MEDIC,COD_INTERNARE)
+);
+
+ALTER TABLE TRATEAZA
+ADD CONSTRAINT FK_COD_PACIENTI_TRATEAZA FOREIGN KEY (COD_PACIENT)
+REFERENCES PACIENTI(COD_PACIENT);
+
+ALTER TABLE TRATEAZA
+ADD CONSTRAINT FK_COD_MEDICI_TRATEAZA FOREIGN KEY (COD_MEDIC)
+REFERENCES MEDICI(COD_MEDIC);
+
+ALTER TABLE TRATEAZA
+ADD CONSTRAINT FK_COD_INTERNARI_TRATEAZA FOREIGN KEY (COD_INTERNARE)
+REFERENCES INTERNARI(COD_INTERNARE);
+
+INSERT INTO SPITAL VALUES(1234,'Calea Floreasca 1',0234185545,'Spitalul Judetean');
+INSERT INTO SPITAL VALUES(1235,'Calea Dorobanti 100',0234165847,'Spitalul de Neurologie');
+INSERT INTO SPITAL VALUES(1546,'Bulevardul Basarabia 49',0234365478,'Spitalul Boli Infectioase');
+INSERT INTO SPITAL VALUES(5478,'Bulevardul Ion Mihalache 10',0234184569,'Spitalul Universitar');
+INSERT INTO SPITAL VALUES(9876,'Splaiul Independentei,8',0234250349,'Spitalul de Obstetrică ');
+
+
+INSERT INTO SECTII VALUES(111,'Medicina Interna',1234);
+INSERT INTO SECTII VALUES(112,'Cardiologie',1234);
+INSERT INTO SECTII VALUES(113,'Neurologie',1234);
+INSERT INTO SECTII VALUES(114,'Ortopedie Traumatologie',1234);
+INSERT INTO SECTII VALUES(115,'CPU',1234);
+INSERT INTO SECTII VALUES(116,'Chirurgie Generala',1234);
+INSERT INTO SECTII VALUES(117,'Oftalmologie',1234);
+INSERT INTO SECTII VALUES(651,'CPU',1235);
+INSERT INTO SECTII VALUES(652,'Ortopedie Traumatologie',1235);
+INSERT INTO SECTII VALUES(653,'Medicina Generala',1235);
+INSERT INTO SECTII VALUES(654,'Chirurgie Ortopedica',1235);
+INSERT INTO SECTII VALUES(154,'CPU',1546);
+INSERT INTO SECTII VALUES(155,'Cardiologie',1546);
+INSERT INTO SECTII VALUES(156,'Chirurgie Cardiovasculara',1546);
+INSERT INTO SECTII VALUES(157,'ATI',1546);
+INSERT INTO SECTII VALUES(158,'Hematologie',1546);
+INSERT INTO SECTII VALUES(159,'Anatomie Patologica',1546);
+INSERT INTO SECTII VALUES(547,'CPU',5478);
+INSERT INTO SECTII VALUES(548,'Gastroenterologie',5478);
+INSERT INTO SECTII VALUES(551,'Hematologie',5478);
+INSERT INTO SECTII VALUES(552,'Ortopedie Traumatologie',5478);
+INSERT INTO SECTII VALUES(553,'Chirurgie Generala',5478);
+INSERT INTO SECTII VALUES(987,'Medicina interna',9876);
+
+
+INSERT INTO MEDICI VALUES(1002,'Ionescu','Adriana',to_date('26-04-2000','dd-mm-yyyy'),111);
+INSERT INTO MEDICI VALUES(1003,'Andrei','Diana',to_date('02-07-1995','dd-mm-yyyy'),112);
+INSERT INTO MEDICI VALUES(1004,'Diaconu','Mircea',to_date('10-09-1997','dd-mm-yyyy'),112);
+INSERT INTO MEDICI VALUES(1006,'Palade','Ioana',to_date('30-06-2001','dd-mm-yyyy'),113);
+INSERT INTO MEDICI VALUES(1007,'Avram','Bogdan',to_date('19-05-2001','dd-mm-yyyy'),113);
+INSERT INTO MEDICI VALUES(1008,'Stoica','George',to_date('17-05-1994','dd-mm-yyyy'),114);
+INSERT INTO MEDICI VALUES(1009,'Filimon','Dana',to_date('01-05-1994','dd-mm-yyyy'),116);
+INSERT INTO MEDICI VALUES(1010,'Darie','Cezar',to_date('03-11-1990','dd-mm-yyyy'),116);
+INSERT INTO MEDICI VALUES(1011,'Stefanescu','Maria',to_date('19-11-1993','dd-mm-yyyy'),117);
+INSERT INTO MEDICI VALUES(2101,'Chirila','Florin',to_date('03-12-1998','dd-mm-yyyy'),652);
+INSERT INTO MEDICI VALUES(2102,'David','Carmen',to_date('14-05-1997','dd-mm-yyyy'),652);
+INSERT INTO MEDICI VALUES(2103,'Filip','Alexandru',to_date('15-08-1987','dd-mm-yyyy'),653);
+INSERT INTO MEDICI VALUES(2104,'Ginghina','Daniel',to_date('17-04-1987','dd-mm-yyyy'),653);
+INSERT INTO MEDICI VALUES(2105,'Coman','Diana',to_date('23-06-2000','dd-mm-yyyy'),654);
+
+INSERT INTO MEDICI VALUES(2109,'Coman','Daria',to_date('01-01-1987','dd-mm-yyyy'),651);
+INSERT INTO MEDICI VALUES(3710,'Nicolae','Marinela',to_date('30-05-1990','dd-mm-yyyy'),154);
+INSERT INTO MEDICI VALUES(3711,'Apostu','Cristian',to_date('30-05-1991','dd-mm-yyyy'),154);
+INSERT INTO MEDICI VALUES(3712,'Iftimie','Mihaela',to_date('25-10-1990','dd-mm-yyyy'),155);
+INSERT INTO MEDICI VALUES(3713,'Stanciu','Marinela',to_date('10-04-1987','dd-mm-yyyy'),155);
+INSERT INTO MEDICI VALUES(3714,'Bruma','Marius',to_date('11-03-1985','dd-mm-yyyy'),155);
+INSERT INTO MEDICI VALUES(3715,'Munteanu','Catalina',to_date('12-08-1995','dd-mm-yyyy'),156);
+INSERT INTO MEDICI VALUES(3716,'Pavel','Ilinca',to_date('30-05-1985','dd-mm-yyyy'),156);
+INSERT INTO MEDICI VALUES(3717,'Nicolae','Razvan',to_date('31-10-1989','dd-mm-yyyy'),157);
+INSERT INTO MEDICI VALUES(3718,'David','Teodora',to_date('05-05-1992','dd-mm-yyyy'),157);
+INSERT INTO MEDICI VALUES(3719,'Avram','Monica',to_date('12-12-1995','dd-mm-yyyy'),158);
+INSERT INTO MEDICI VALUES(3720,'Nechita','Antonio',to_date('13-11-2001','dd-mm-yyyy'),159);
+
+INSERT INTO MEDICI VALUES(7501,'Oancea','Madalina',to_date('14-03-1993','dd-mm-yyyy'),547);
+INSERT INTO MEDICI VALUES(7502,'Pavel','Cristian',to_date('09-09-1996','dd-mm-yyyy'),547);
+INSERT INTO MEDICI VALUES(7503,'Mocanu','Cornel',to_date('15-04-1993','dd-mm-yyyy'),548);
+INSERT INTO MEDICI VALUES(7504,'Matei','Ruxandra',to_date('02-02-1990','dd-mm-yyyy'),548);
+
+INSERT INTO MEDICI VALUES(7506,'Chiriac','Alexandru',to_date('11-09-1985','dd-mm-yyyy'),551);
+INSERT INTO MEDICI VALUES(7507,'Munteanu','Florin',to_date('18-12-1984','dd-mm-yyyy'),552);
+INSERT INTO MEDICI VALUES(7508,'Oancea','Andrei',to_date('14-03-1993','dd-mm-yyyy'),553);
+INSERT INTO MEDICI VALUES(9801,'Ichim','Elena',to_date('27-02-2000','dd-mm-yyyy'),987);
+
+
+INSERT INTO ASISTENTE VALUES(10011,'Iliescu','Adriana',to_date('15-04-2000','dd-mm-yyyy'),111);
+INSERT INTO ASISTENTE VALUES(10021,'Pavel','Ioana',to_date('15-04-1999','dd-mm-yyyy'),111);
+INSERT INTO ASISTENTE VALUES(10012,'Munteanu','Laura',to_date('16-12-2001','dd-mm-yyyy'),111);
+INSERT INTO ASISTENTE VALUES(10013,'Cartas','Maria',to_date('21-12-1997','dd-mm-yyyy'),112);
+INSERT INTO ASISTENTE VALUES(10014,'Dima','Rebeca',to_date('15-04-1998','dd-mm-yyyy'),112);
+INSERT INTO ASISTENTE VALUES(10016,'Pavel','Andreea',to_date('01-01-2000','dd-mm-yyyy'),113);
+INSERT INTO ASISTENTE VALUES(10026,'Chirila','Ana Maria',to_date('11-04-2000','dd-mm-yyyy'),113);
+INSERT INTO ASISTENTE VALUES(10017,'Andrei','Carmen',to_date('15-10-1999','dd-mm-yyyy'),113);
+INSERT INTO ASISTENTE VALUES(10027,'Vasilache','Antonia',to_date('15-10-2001','dd-mm-yyyy'),113);
+INSERT INTO ASISTENTE VALUES(10018,'Igescu','Georgeta',to_date('17-08-1996','dd-mm-yyyy'),114);
+INSERT INTO ASISTENTE VALUES(10028,'Bobarca','Florina',to_date('27-03-1997','dd-mm-yyyy'),114);
+INSERT INTO ASISTENTE VALUES(10038,'Manea','Mihaela',to_date('30-12-1996','dd-mm-yyyy'),114);
+INSERT INTO ASISTENTE VALUES(10019,'Lipsa','Ilinca',to_date('12-10-1995','dd-mm-yyyy'),115);
+INSERT INTO ASISTENTE VALUES(10029,'Onofrei','Georgiana',to_date('01-06-1996','dd-mm-yyyy'),116);
+INSERT INTO ASISTENTE VALUES(10100,'Baciu','Raluca',to_date('25-09-1992','dd-mm-yyyy'),116);
+INSERT INTO ASISTENTE VALUES(10101,'Diaconu','Stefania',to_date('29-08-1995','dd-mm-yyyy'),116);
+INSERT INTO ASISTENTE VALUES(10110,'Bargau','Alexandra',to_date('17-02-1996','dd-mm-yyyy'),117);
+INSERT INTO ASISTENTE VALUES(21011,'Chirila','Alexandra',to_date('17-02-1999','dd-mm-yyyy'),652);
+INSERT INTO ASISTENTE VALUES(21021,'Timofte','Gabriela',to_date('29-07-1999','dd-mm-yyyy'),653);
+INSERT INTO ASISTENTE VALUES(21012,'Ambrosa','Smaranda',to_date('26-09-1999','dd-mm-yyyy'),654);
+INSERT INTO ASISTENTE VALUES(21013,'Caradinta','Alina',to_date('17-02-1990','dd-mm-yyyy'),987);
+INSERT INTO ASISTENTE VALUES(21023,'Suciu','Catalina',to_date('07-07-1991','dd-mm-yyyy'),154);
+INSERT INTO ASISTENTE VALUES(21014,'Cartas','Petronela',to_date('17-02-1989','dd-mm-yyyy'),155);
+INSERT INTO ASISTENTE VALUES(21024,'Palade','Marcela',to_date('27-02-1989','dd-mm-yyyy'),156);
+INSERT INTO ASISTENTE VALUES(21015,'Ana','Teodora',to_date('21-12-2001','dd-mm-yyyy'),157);
+INSERT INTO ASISTENTE VALUES(21025,'Beciu','Luciana',to_date('06-05-2001','dd-mm-yyyy'),158);
+INSERT INTO ASISTENTE VALUES(21016,'Despa','Cosmina',to_date('12-07-2001','dd-mm-yyyy'),159);
+INSERT INTO ASISTENTE VALUES(21017,'Modoranu','Alina',to_date('10-05-2001','dd-mm-yyyy'),547);
+INSERT INTO ASISTENTE VALUES(21027,'Preda','Nicoleta',to_date('10-02-2001','dd-mm-yyyy'),548);
+INSERT INTO ASISTENTE VALUES(21018,'Serban','Ana Maria',to_date('10-09-2000','dd-mm-yyyy'),551);
+INSERT INTO ASISTENTE VALUES(21028,'Susanu','Bianca',to_date('20-11-2000','dd-mm-yyyy'),552);
+INSERT INTO ASISTENTE VALUES(21019,'Sterie','Roberta',to_date('17-02-1988','dd-mm-yyyy'),553);
+INSERT INTO ASISTENTE VALUES(21029,'Voicu','Elena',to_date('17-12-1999','dd-mm-yyyy'),987);
+
+INSERT INTO INVENTAR VALUES(101,'Injectie',100,111);
+INSERT INTO INVENTAR VALUES(102,'Masca',1000,111);
+INSERT INTO INVENTAR VALUES(103,'Halat',1000,111);
+INSERT INTO INVENTAR VALUES(104,'Tomograf',5,111);
+INSERT INTO INVENTAR VALUES(105,'Ibuprofen',5000,111);
+INSERT INTO INVENTAR VALUES(106,'Melatonina',100,111);
+INSERT INTO INVENTAR VALUES(107,'Perfuzie',3000,111);
+INSERT INTO INVENTAR VALUES(108,'Bisturiu',100,111);
+
+INSERT INTO INVENTAR VALUES(109,'Injectie',100,112);
+INSERT INTO INVENTAR VALUES(110,'Masca',1000,112);
+INSERT INTO INVENTAR VALUES(111,'Halat',1000,112);
+INSERT INTO INVENTAR VALUES(112,'Tomograf',5,112);
+INSERT INTO INVENTAR VALUES(113,'Ibuprofen',5000,112);
+INSERT INTO INVENTAR VALUES(114,'Melatonina',100,112);
+INSERT INTO INVENTAR VALUES(115,'Perfuzie',3000,112);
+INSERT INTO INVENTAR VALUES(116,'Bisturiu',100,112);
+
+INSERT INTO INVENTAR VALUES(117,'Injectie',200,113);
+INSERT INTO INVENTAR VALUES(118,'Masca',1000,113);
+INSERT INTO INVENTAR VALUES(119,'Halat',2000,113);
+INSERT INTO INVENTAR VALUES(121,'Ibuprofen',5000,113);
+INSERT INTO INVENTAR VALUES(122,'Melatonina',100,113);
+INSERT INTO INVENTAR VALUES(123,'Perfuzie',3000,113);
+
+
+INSERT INTO INVENTAR VALUES(124,'Injectie',100,114);
+INSERT INTO INVENTAR VALUES(125,'Masca',1000,114);
+INSERT INTO INVENTAR VALUES(126,'Halat',1000,114);
+INSERT INTO INVENTAR VALUES(127,'Tomograf',5,114);
+INSERT INTO INVENTAR VALUES(128,'Ibuprofen',5000,114);
+INSERT INTO INVENTAR VALUES(129,'Melatonina',100,114);
+INSERT INTO INVENTAR VALUES(130,'Perfuzie',3000,114);
+INSERT INTO INVENTAR VALUES(131,'Bisturiu',100,114);
+
+INSERT INTO INVENTAR VALUES(132,'Injectie',100,115);
+INSERT INTO INVENTAR VALUES(133,'Masca',1000,115);
+INSERT INTO INVENTAR VALUES(134,'Halat',1000,115);
+INSERT INTO INVENTAR VALUES(135,'Tomograf',5,115);
+INSERT INTO INVENTAR VALUES(136,'Ibuprofen',5000,115);
+INSERT INTO INVENTAR VALUES(137,'Melatonina',100,115);
+INSERT INTO INVENTAR VALUES(138,'Perfuzie',3000,115);
+INSERT INTO INVENTAR VALUES(139,'Bisturiu',100,115);
+
+INSERT INTO INVENTAR VALUES(140,'Injectie',100,116);
+INSERT INTO INVENTAR VALUES(141,'Masca',1000,116);
+INSERT INTO INVENTAR VALUES(142,'Halat',1000,116);
+INSERT INTO INVENTAR VALUES(143,'Tomograf',5,116);
+INSERT INTO INVENTAR VALUES(144,'Ibuprofen',5000,116);
+INSERT INTO INVENTAR VALUES(145,'Melatonina',100,116);
+INSERT INTO INVENTAR VALUES(146,'Perfuzie',3000,116);
+INSERT INTO INVENTAR VALUES(147,'Bisturiu',100,116);
+
+INSERT INTO INVENTAR VALUES(148,'Injectie',100,117);
+INSERT INTO INVENTAR VALUES(149,'Masca',1000,117);
+INSERT INTO INVENTAR VALUES(150,'Halat',1000,117);
+INSERT INTO INVENTAR VALUES(151,'Tomograf',5,117);
+INSERT INTO INVENTAR VALUES(152,'Ibuprofen',5000,117);
+INSERT INTO INVENTAR VALUES(153,'Melatonina',100,117);
+INSERT INTO INVENTAR VALUES(154,'Perfuzie',3000,117);
+INSERT INTO INVENTAR VALUES(155,'Bisturiu',100,117);
+
+INSERT INTO INVENTAR VALUES(156,'Injectie',100,651);
+INSERT INTO INVENTAR VALUES(157,'Masca',1000,651);
+INSERT INTO INVENTAR VALUES(158,'Halat',1000,651);
+INSERT INTO INVENTAR VALUES(159,'Tomograf',5,651);
+INSERT INTO INVENTAR VALUES(160,'Ibuprofen',5000,651);
+INSERT INTO INVENTAR VALUES(161,'Melatonina',100,651);
+INSERT INTO INVENTAR VALUES(162,'Perfuzie',3000,651);
+INSERT INTO INVENTAR VALUES(163,'Bisturiu',100,651);
+
+INSERT INTO INVENTAR VALUES(164,'Injectie',110,652);
+INSERT INTO INVENTAR VALUES(165,'Masca',1010,652);
+INSERT INTO INVENTAR VALUES(166,'Halat',1010,652);
+INSERT INTO INVENTAR VALUES(167,'Tomograf',15,652);
+INSERT INTO INVENTAR VALUES(168,'Ibuprofen',7000,652);
+INSERT INTO INVENTAR VALUES(169,'Melatonina',110,652);
+INSERT INTO INVENTAR VALUES(170,'Perfuzie',5000,652);
+INSERT INTO INVENTAR VALUES(171,'Bisturiu',100,652);
+
+INSERT INTO INVENTAR VALUES(172,'Injectie',100,653);
+INSERT INTO INVENTAR VALUES(173,'Masca',1000,653);
+INSERT INTO INVENTAR VALUES(174,'Halat',1000,653);
+INSERT INTO INVENTAR VALUES(175,'Tomograf',5,653);
+INSERT INTO INVENTAR VALUES(176,'Ibuprofen',5000,653);
+
+INSERT INTO INVENTAR VALUES(177,'Ibuprofen',5000,654);
+INSERT INTO INVENTAR VALUES(178,'Melatonina',100,654);
+INSERT INTO INVENTAR VALUES(179,'Perfuzie',3000,654);
+INSERT INTO INVENTAR VALUES(180,'Bisturiu',100,654);
+
+INSERT INTO INVENTAR VALUES(181,'Injectie',100,154);
+INSERT INTO INVENTAR VALUES(182,'Masca',1000,154);
+INSERT INTO INVENTAR VALUES(183,'Halat',1000,154);
+INSERT INTO INVENTAR VALUES(184,'Tomograf',5,154);
+INSERT INTO INVENTAR VALUES(185,'Ibuprofen',5000,154);
+
+INSERT INTO INVENTAR VALUES(186,'Injectie',110,155);
+INSERT INTO INVENTAR VALUES(187,'Masca',1010,155);
+
+
+INSERT INTO INVENTAR VALUES(195,'Injectie',100,156);
+INSERT INTO INVENTAR VALUES(196,'Perfuzie',3000,156);
+INSERT INTO INVENTAR VALUES(197,'Bisturiu',100,156);
+
+INSERT INTO INVENTAR VALUES(198,'Injectie',100,157);
+INSERT INTO INVENTAR VALUES(199,'Masca',1000,157);
+INSERT INTO INVENTAR VALUES(200,'Halat',1000,157);
+INSERT INTO INVENTAR VALUES(201,'Melatonina',100,157);
+INSERT INTO INVENTAR VALUES(202,'Perfuzie',3000,157);
+INSERT INTO INVENTAR VALUES(203,'Bisturiu',100,157);
+
+INSERT INTO INVENTAR VALUES(204,'Injectie',100,158);
+INSERT INTO INVENTAR VALUES(205,'Masca',1000,158);
+INSERT INTO INVENTAR VALUES(206,'Halat',1000,158);
+INSERT INTO INVENTAR VALUES(207,'Tomograf',5,158);
+
+INSERT INTO INVENTAR VALUES(212,'Injectie',100,159);
+INSERT INTO INVENTAR VALUES(213,'Masca',1000,159);
+INSERT INTO INVENTAR VALUES(214,'Perfuzie',3000,159);
+INSERT INTO INVENTAR VALUES(215,'Bisturiu',100,159);
+
+INSERT INTO INVENTAR VALUES(216,'Ibuprofen',5000,547);
+INSERT INTO INVENTAR VALUES(217,'Melatonina',100,547);
+INSERT INTO INVENTAR VALUES(218,'Perfuzie',3000,547);
+INSERT INTO INVENTAR VALUES(219,'Bisturiu',100,547);
+
+INSERT INTO INVENTAR VALUES(220,'Ibuprofen',5000,548);
+INSERT INTO INVENTAR VALUES(221,'Melatonina',100,548);
+INSERT INTO INVENTAR VALUES(222,'Perfuzie',3000,548);
+INSERT INTO INVENTAR VALUES(223,'Bisturiu',100,548);
+
+INSERT INTO INVENTAR VALUES(224,'Injectie',100,551);
+INSERT INTO INVENTAR VALUES(225,'Masca',1000,551);
+INSERT INTO INVENTAR VALUES(226,'Halat',1000,551);
+INSERT INTO INVENTAR VALUES(227,'Tomograf',5,551);
+INSERT INTO INVENTAR VALUES(228,'Bisturiu',100,551);
+
+INSERT INTO INVENTAR VALUES(229,'Injectie',100,552);
+INSERT INTO INVENTAR VALUES(230,'Ibuprofen',5000,552);
+INSERT INTO INVENTAR VALUES(231,'Melatonina',100,552);
+INSERT INTO INVENTAR VALUES(232,'Perfuzie',3000,552);
+INSERT INTO INVENTAR VALUES(233,'Bisturiu',100,552);
+
+INSERT INTO INVENTAR VALUES(234,'Injectie',100,553);
+
+INSERT INTO INVENTAR VALUES(242,'Tomograf',5,987);
+INSERT INTO INVENTAR VALUES(243,'Ibuprofen',5000,987);
+INSERT INTO INVENTAR VALUES(244,'Melatonina',100,987);
+INSERT INTO INVENTAR VALUES(245,'Perfuzie',3000,987);
+INSERT INTO INVENTAR VALUES(246,'Bisturiu',100,987);
+
+
+INSERT INTO PACIENTI VALUES (95, 'Halep','Adriana',to_date('17-02-1990','dd-mm-yyyy'),'F',0770456230);
+INSERT INTO PACIENTI VALUES (96, 'Manea','Teodor',to_date('19-09-1960','dd-mm-yyyy'),'M',0723521468);
+INSERT INTO PACIENTI VALUES (97, 'Gutui','Florica',to_date('22-12-1998','dd-mm-yyyy'),'F',0773125664);
+INSERT INTO PACIENTI VALUES (98, 'Chitu','Andrei',to_date('03-02-1967','dd-mm-yyyy'),'M',0724665522);
+INSERT INTO PACIENTI VALUES (99, 'Zamfir','Ioana',to_date('23-07-1985','dd-mm-yyyy'),'F',0760954425);
+INSERT INTO PACIENTI VALUES (100,'Tasbac','Maria',to_date('20-06-2000','dd-mm-yyyy'),'F',0722965235);
+INSERT INTO PACIENTI VALUES (101,'Costea','Flavius',to_date('17-05-1992','dd-mm-yyyy'),'M',0723785126);
+INSERT INTO PACIENTI VALUES (102,'Tapu','Florina',to_date('08-09-1996','dd-mm-yyyy'),'F',0773365897);
+INSERT INTO PACIENTI VALUES (103, 'Mitu','Madalina',to_date('05-02-2003','dd-mm-yyyy'),'F',0746126589);
+INSERT INTO PACIENTI VALUES(104,'Duta','Catalin',to_date('27-02-2001','dd-mm-yyyy'),'M',0789343022);
+iNSERT INTO PACIENTI VALUES(330,'Ionita','Marcel',to_date('02-02-2002','dd-mm-yyyy'),'M',0726408911);
+INSERT INTO PACIENTI VALUES(331,'Dobrescu','Ioana',to_date('11-11-1969','dd-mm-yyyy'),'F',0770972640);
+INSERT INTO PACIENTI VALUES(333,'Ciuperca','Ioan',to_date('15-10-1987','dd-mm-yyyy'),'M',0745910347);
+INSERT INTO PACIENTI VALUES(334,'Cartas','Alexandru',to_date('12-12-1994','dd-mm-yyyy'),'M',075490347);
+INSERT INTO PACIENTI VALUES(335,'Pavel','Catalina',to_date('28-01-1989','dd-mm-yyyy'),'F',0776482167);
+INSERT INTO PACIENTI VALUES(336,'Badarau','Cristina',to_date('29-09-1970','dd-mm-yyyy'),'F',0746912254);
+INSERT INTO PACIENTI VALUES(337,'Macovei','Dragos',to_date('17-04-1976','dd-mm-yyyy'),'M',0745822116);
+INSERT INTO PACIENTI VALUES(338,'Sarariu','Claudia',to_date('06-08-1983','dd-mm-yyyy'),'F',0722641189);
+INSERT INTO PACIENTI VALUES(339,'Costescu','Teodora',to_date('13-05-1986','dd-mm-yyyy'),'F',0756913480);
+
+insert into internari values(1,to_date('01-01-1999','dd-mm-yyyy'),to_date('09-01-1999','dd-mm-yyyy'));
+insert into internari values(2,to_date('05-01-1999','dd-mm-yyyy'),to_date('07-01-1999','dd-mm-yyyy'));
+insert into internari values(3,to_date('12-01-1999','dd-mm-yyyy'),to_date('18-01-1999','dd-mm-yyyy'));
+insert into internari values(4,to_date('15-01-1999','dd-mm-yyyy'),to_date('23-01-1999','dd-mm-yyyy'));
+insert into internari values(5,to_date('20-01-1999','dd-mm-yyyy'),to_date('25-01-1999','dd-mm-yyyy'));
+insert into internari values(6,to_date('22-01-1999','dd-mm-yyyy'),to_date('27-01-1999','dd-mm-yyyy'));
+insert into internari values(7,to_date('24-01-1999','dd-mm-yyyy'),to_date('31-01-1999','dd-mm-yyyy'));
+insert into internari values(8,to_date('30-01-1999','dd-mm-yyyy'),to_date('05-02-1999','dd-mm-yyyy'));
+insert into internari values(9,to_date('03-02-1999','dd-mm-yyyy'),to_date('09-02-1999','dd-mm-yyyy'));
+insert into internari values(10,to_date('05-02-1999','dd-mm-yyyy'),to_date('11-02-1999','dd-mm-yyyy'));
+insert into internari values(11,to_date('07-02-1999','dd-mm-yyyy'),to_date('15-02-1999','dd-mm-yyyy'));
+insert into internari values(12,to_date('12-02-1999','dd-mm-yyyy'),to_date('16-02-1999','dd-mm-yyyy'));
+insert into internari values(13,to_date('13-02-1999','dd-mm-yyyy'),to_date('19-02-1999','dd-mm-yyyy'));
+insert into internari values(14,to_date('17-02-1999','dd-mm-yyyy'),to_date('23-02-1999','dd-mm-yyyy'));
+insert into internari values(15,to_date('19-02-1999','dd-mm-yyyy'),to_date('26-02-1999','dd-mm-yyyy'));
+insert into internari values(16,to_date('22-02-1999','dd-mm-yyyy'),to_date('27-02-1999','dd-mm-yyyy'));
+insert into internari values(17,to_date('01-03-1999','dd-mm-yyyy'),to_date('09-03-1999','dd-mm-yyyy'));
+insert into internari values(18,to_date('03-03-1999','dd-mm-yyyy'),to_date('07-03-1999','dd-mm-yyyy'));
+insert into internari values(19,to_date('09-03-1999','dd-mm-yyyy'),to_date('14-03-1999','dd-mm-yyyy'));
+insert into internari values(20,to_date('01-05-1999','dd-mm-yyyy'),to_date('07-05-1999','dd-mm-yyyy'));
+insert into internari values(21,to_date('11-05-1999','dd-mm-yyyy'),to_date('16-05-1999','dd-mm-yyyy'));
+insert into internari values(22,to_date('12-05-1999','dd-mm-yyyy'),to_date('21-05-1999','dd-mm-yyyy'));
+insert into internari values(23,to_date('17-05-1999','dd-mm-yyyy'),to_date('22-05-1999','dd-mm-yyyy'));
+insert into internari values(24,to_date('25-05-1999','dd-mm-yyyy'),to_date('31-05-1999','dd-mm-yyyy'));
+insert into internari values(25,to_date('01-06-1999','dd-mm-yyyy'),to_date('09-06-1999','dd-mm-yyyy'));
+insert into internari values(26,to_date('07-06-1999','dd-mm-yyyy'),to_date('15-06-1999','dd-mm-yyyy'));
+insert into internari values(27,to_date('14-06-1999','dd-mm-yyyy'),to_date('17-06-1999','dd-mm-yyyy'));
+insert into internari values(28,to_date('17-06-1999','dd-mm-yyyy'),to_date('20-06-1999','dd-mm-yyyy'));
+insert into internari values(29,to_date('22-06-1999','dd-mm-yyyy'),to_date('29-06-1999','dd-mm-yyyy'));
+insert into internari values(30,to_date('01-07-1999','dd-mm-yyyy'),to_date('09-07-1999','dd-mm-yyyy'));
+insert into internari values(31,to_date('11-07-1999','dd-mm-yyyy'),to_date('18-07-1999','dd-mm-yyyy'));
+insert into internari values(32,to_date('14-07-1999','dd-mm-yyyy'),to_date('20-07-1999','dd-mm-yyyy'));
+insert into internari values(33,to_date('21-07-1999','dd-mm-yyyy'),to_date('28-07-1999','dd-mm-yyyy'));
+insert into internari values(34,to_date('01-08-1999','dd-mm-yyyy'),to_date('09-08-1999','dd-mm-yyyy'));
+insert into internari values(35,to_date('10-08-1999','dd-mm-yyyy'),to_date('16-08-1999','dd-mm-yyyy'));
+insert into internari values(36,to_date('15-08-1999','dd-mm-yyyy'),to_date('21-08-1999','dd-mm-yyyy'));
+insert into internari values(37,to_date('01-09-1999','dd-mm-yyyy'),to_date('09-09-1999','dd-mm-yyyy'));
+insert into internari values(38,to_date('07-09-1999','dd-mm-yyyy'),to_date('17-09-1999','dd-mm-yyyy'));
+insert into internari values(39,to_date('01-10-1999','dd-mm-yyyy'),to_date('09-10-1999','dd-mm-yyyy'));
+insert into internari values(40,to_date('09-10-1999','dd-mm-yyyy'),to_date('10-10-1999','dd-mm-yyyy'));
+insert into internari values(41,to_date('16-10-1999','dd-mm-yyyy'),to_date('24-10-1999','dd-mm-yyyy'));
+insert into internari values(42,to_date('11-11-1999','dd-mm-yyyy'),to_date('21-11-1999','dd-mm-yyyy'));
+insert into internari values(43,to_date('01-12-1999','dd-mm-yyyy'),to_date('09-12-1999','dd-mm-yyyy'));
+insert into internari values(44,to_date('08-12-1999','dd-mm-yyyy'),to_date('09-12-1999','dd-mm-yyyy'));
+insert into internari values(45,to_date('31-12-1999','dd-mm-yyyy'),to_date('09-01-2000','dd-mm-yyyy'));
+insert into internari values(46,to_date('01-01-2000','dd-mm-yyyy'),to_date('09-01-2000','dd-mm-yyyy'));
+insert into internari values(47,to_date('01-02-2000','dd-mm-yyyy'),to_date('19-03-2000','dd-mm-yyyy'));
+insert into internari values(48,to_date('01-03-2000','dd-mm-yyyy'),to_date('09-03-2000','dd-mm-yyyy'));
+insert into internari values(49,to_date('01-07-2000','dd-mm-yyyy'),to_date('09-07-2000','dd-mm-yyyy'));
+insert into internari values(50,to_date('11-11-2000','dd-mm-yyyy'),to_date('29-11-2000','dd-mm-yyyy'));
+insert into internari values(51,to_date('21-02-2001','dd-mm-yyyy'),to_date('26-02-2001','dd-mm-yyyy'));
+insert into internari values(52,to_date('03-05-2001','dd-mm-yyyy'),to_date('09-05-2001','dd-mm-yyyy'));
+insert into internari values(53,to_date('01-01-2002','dd-mm-yyyy'),to_date('09-01-2002','dd-mm-yyyy'));
+insert into internari values(54,to_date('01-11-2003','dd-mm-yyyy'),to_date('09-11-2003','dd-mm-yyyy'));
+insert into internari values(55,to_date('11-12-2003','dd-mm-yyyy'),to_date('17-12-2003','dd-mm-yyyy'));
+insert into internari values(56,to_date('01-01-2004','dd-mm-yyyy'),to_date('07-01-2004','dd-mm-yyyy'));
+insert into internari values(57,to_date('17-09-2004','dd-mm-yyyy'),to_date('19-09-2004','dd-mm-yyyy'));
+insert into internari values(58,to_date('01-01-2005','dd-mm-yyyy'),to_date('09-01-2005','dd-mm-yyyy'));
+insert into internari values(59,to_date('01-06-2005','dd-mm-yyyy'),to_date('17-06-2005','dd-mm-yyyy'));
+insert into internari values(60,to_date('01-01-2006','dd-mm-yyyy'),to_date('09-01-2006','dd-mm-yyyy'));
+insert into internari values(61,to_date('11-06-2006','dd-mm-yyyy'),to_date('27-06-2006','dd-mm-yyyy'));
+insert into internari values(62,to_date('01-01-2007','dd-mm-yyyy'),to_date('19-01-2007','dd-mm-yyyy'));
+insert into internari values(63,to_date('16-08-2007','dd-mm-yyyy'),to_date('25-08-2007','dd-mm-yyyy'));
+insert into internari values(64,to_date('19-10-2007','dd-mm-yyyy'),to_date('21-10-2007','dd-mm-yyyy'));
+insert into internari values(65,to_date('27-12-2007','dd-mm-yyyy'),to_date('09-01-2008','dd-mm-yyyy'));
+insert into internari values(66,to_date('25-02-2008','dd-mm-yyyy'),to_date('28-03-2008','dd-mm-yyyy'));
+insert into internari values(67,to_date('01-09-2008','dd-mm-yyyy'),to_date('15-01-2008','dd-mm-yyyy'));
+insert into internari values(68,to_date('01-01-2009','dd-mm-yyyy'),to_date('09-01-2009','dd-mm-yyyy'));
+insert into internari values(69,to_date('16-05-2009','dd-mm-yyyy'),to_date('29-05-2009','dd-mm-yyyy'));
+insert into internari values(70,to_date('03-09-2009','dd-mm-yyyy'),to_date('09-09-2009','dd-mm-yyyy'));
+insert into internari values(71,to_date('01-01-2010','dd-mm-yyyy'),to_date('09-01-2010','dd-mm-yyyy'));
+insert into internari values(72,to_date('01-05-2010','dd-mm-yyyy'),to_date('17-05-2010','dd-mm-yyyy'));
+insert into internari values(73,to_date('01-07-2013','dd-mm-yyyy'),to_date('09-09-2013','dd-mm-yyyy'));
+insert into internari values(74,to_date('11-11-2013','dd-mm-yyyy'),to_date('27-11-2013','dd-mm-yyyy'));
+insert into internari values(75,to_date('01-06-2015','dd-mm-yyyy'),to_date('29-06-2015','dd-mm-yyyy'));
+
+insert into laborator values(1,95,'Hemoleucograma','pozitiv');
+insert into laborator values(2,96,'Colesterol','negativ');
+insert into laborator values(3,97,'Glicemie','pozitiv');
+insert into laborator values(4,98,'Functia hepatica','pozitiv');
+insert into laborator values(5,99,'Functia renală','negativ');
+insert into laborator values(6,100,'Electroliti serici','pozitiv');
+insert into laborator values(7,101,'Acid uric','negativ');
+insert into laborator values(8,102,'Test HIV','negativ');
+insert into laborator values(9,103,'Test pentru hepatita B','pozitiv');
+insert into laborator values(10,104,'alergie antibiotic','negativ');
+insert into laborator values(11,330,'alergie','pozitiv');
+insert into laborator values(12,331,'intoleranta gluten','negativ');
+insert into laborator values(14,333,'functie tiroidiana','negativ');
+insert into laborator values(15,334,'functie tiroidiana','pozitiv');
+insert into laborator values(16,335,'diabet','negativ');
+insert into laborator values(17,336,'diabet','pozitiv');
+insert into laborator values(18,337,'Test HIV','negativ');
+insert into laborator values(19,338,'Test HIV','pozitiv');
+insert into laborator values(20,339,'intoleranta gluten','negativ');
+
+insert into istoric_medical values(1,95,'Artrită reumatoidă','medicamente imunosupresoare'); 
+insert into istoric_medical values(2,96,'Fibromialgie','medicamente pentru gestionarea durerii'); 
+insert into istoric_medical values(3,97,'Osteoporoză','suplimente cu calciu ');
+insert into istoric_medical values(4,98,'Boala Parkinson','terapie fizica');
+insert into istoric_medical values(5,99,'Boală celiacă','evitarea glutenului in alimentatie');
+insert into istoric_medical values(6,100,'Anemie','suplimente cu fier');
+insert into istoric_medical values(7,101,'Hipertensiune arteriala','medicamente antihipertensive');
+insert into istoric_medical values(8,102,'Lupus','medicamente antiinflamatoare');
+insert into istoric_medical values(9,103,'Ateroscleroză','medicamente pentru scăderea colesterolului');
+insert into istoric_medical values(10,104,'Astm bron?ic','medicamente bronhodilatatoare');
+insert into istoric_medical values(11,330,'SIDA','terapie antiretrovirală');
+insert into istoric_medical values(12,331,'Cancer',' chimioterapie');
+
+create sequence reteta
+start with 1
+increment by 1
+minvalue 1
+maxvalue 16
+nocycle
+cache 20;
+
+INSERT INTO retete VALUES (reteta.nextval, 95);
+INSERT INTO retete VALUES (reteta.nextval, 96);
+INSERT INTO retete VALUES (reteta.nextval, 97);
+INSERT INTO retete VALUES (reteta.nextval, 98);
+INSERT INTO retete VALUES (reteta.nextval, 99);
+INSERT INTO retete VALUES (reteta.nextval, 100);
+INSERT INTO retete VALUES (reteta.nextval, 101);
+INSERT INTO retete VALUES (reteta.nextval, 102);
+INSERT INTO retete VALUES (reteta.nextval, 103);
+INSERT INTO retete VALUES (reteta.nextval, 104);
+INSERT INTO retete VALUES (reteta.nextval, 330);
+INSERT INTO retete VALUES (reteta.nextval, 331);
+INSERT INTO retete VALUES (reteta.nextval, 333);
+INSERT INTO retete VALUES (reteta.nextval, 334);
+
+INSERT INTO fise_medicale VALUES (1, 95, 7506, TO_DATE('2023-05-01', 'YYYY-MM-DD'), 'Gripa');
+INSERT INTO fise_medicale VALUES (2, 96, 7507, TO_DATE('2023-05-02', 'YYYY-MM-DD'), 'Rinita alergica');
+INSERT INTO fise_medicale VALUES (3, 97, 7508, TO_DATE('2023-05-03', 'YYYY-MM-DD'), 'Infectie respiratorie');
+INSERT INTO fise_medicale VALUES (4, 98, 2101, TO_DATE('2023-05-04', 'YYYY-MM-DD'), 'Bronsita');
+INSERT INTO fise_medicale VALUES (5, 99, 2102, TO_DATE('2023-05-05', 'YYYY-MM-DD'), ' Sinuzita');
+INSERT INTO fise_medicale VALUES (6, 100,2102, TO_DATE('2023-05-06', 'YYYY-MM-DD'), 'Gastrita');
+INSERT INTO fise_medicale VALUES (7, 101, 2103, TO_DATE('2023-05-07', 'YYYY-MM-DD'), ' Infectie urinara');
+INSERT INTO fise_medicale VALUES (8, 95, 7506, TO_DATE('2023-05-16', 'YYYY-MM-DD'), 'Apendicita');
+INSERT INTO fise_medicale VALUES (9, 96, 7507, TO_DATE('2023-05-17', 'YYYY-MM-DD'), 'Tiroidita');
+INSERT INTO fise_medicale VALUES (10, 97, 7508, TO_DATE('2023-05-18', 'YYYY-MM-DD'), 'Gastroenterita virala');
+
+INSERT INTO chirurgi values(2109);
+INSERT INTO chirurgi values(3710);
+INSERT INTO chirurgi values(3711);
+INSERT INTO chirurgi values(3716);
+INSERT INTO chirurgi values(3715);
+INSERT INTO chirurgi values(7508);
+INSERT INTO chirurgi values(3717);
+INSERT INTO chirurgi values(3718);
+INSERT INTO chirurgi values(3719);
+INSERT INTO chirurgi values(3720);
+
+Insert into ajuta values(10011,1002);
+Insert into ajuta values(10012,1002);
+Insert into ajuta values(10014,1003);
+Insert into ajuta values(10014,1004);
+Insert into ajuta values(10016,1006);
+Insert into ajuta values(10026,1007);
+Insert into ajuta values(10017,1007);
+Insert into ajuta values(10027,1007);
+Insert into ajuta values(10018,1008);
+Insert into ajuta values(10028,1008);
+Insert into ajuta values(10038,1008);
+Insert into ajuta values(10100,1010);
+Insert into ajuta values(10101,1010);
+Insert into ajuta values(10110,1011);
+Insert into ajuta values(21011,2101);
+Insert into ajuta values(21011,2102);
+Insert into ajuta values(21021,2103);
+Insert into ajuta values(21021,2104);
+Insert into ajuta values(21012,2105);
+Insert into ajuta values(21023,3710);
+Insert into ajuta values(21023,3711);
+Insert into ajuta values(21014,3712);
+Insert into ajuta values(21014,3713);
+Insert into ajuta values(21014,3714);
+Insert into ajuta values(21024,3715);
+Insert into ajuta values(21024,3716);
+Insert into ajuta values(21015,3718);
+Insert into ajuta values(21015,3717);
+Insert into ajuta values(21025,3719);
+Insert into ajuta values(21016,3720);
+
+Insert into ajuta values(21017,7501);
+Insert into ajuta values(21017,7502);
+Insert into ajuta values(21027,7503);
+Insert into ajuta values(21027,7504);
+
+Insert into ajuta values(21018,7506);
+Insert into ajuta values(21028,7507);
+Insert into ajuta values(21019,7508);
+Insert into ajuta values(21029,9801);
+select * from opereaza
+Insert into opereaza values(2109,95);
+Insert into opereaza values(3710,96);
+Insert into opereaza values(2109,97);
+Insert into opereaza values(3716,98);
+Insert into opereaza values(3717,99);
+Insert into opereaza values(3720,95);
+Insert into opereaza values(3719,100);
+Insert into opereaza values(3715,101);
+Insert into opereaza values(3718,102);
+Insert into opereaza values(7508,103);
+
+create sequence serie
+start with 2
+increment by 1
+minvalue 1
+maxvalue 12
+nocycle
+cache 20;
+select * from trateaza
+Insert into trateaza values(95,2109,serie.nextval);
+Insert into trateaza values(96,3710,serie.nextval);
+Insert into trateaza values(97,3711,serie.nextval);
+Insert into trateaza values(98,3716,serie.nextval);
+Insert into trateaza values(99,3717,serie.nextval);
+Insert into trateaza values(100,7508,serie.nextval);
+Insert into trateaza values(101,7504,serie.nextval);
+Insert into trateaza values(102,3719,serie.nextval);
+Insert into trateaza values(103,3718,serie.nextval);
+Insert into trateaza values(104,3719,serie.nextval);
+
+insert into medicamente values(1,'paracetamol',2);
+insert into medicamente values(2,'no-spa',3);
+insert into medicamente values(3,'ibusinus',3);
+insert into medicamente values(4,'no-spa',3);
+insert into medicamente values(7,'no-spa',3);
+insert into medicamente values(9,'no-spa',3);
+insert into medicamente values (12,'nurofen forte',3);
+insert into medicamente values (5,'nurofen forte',3);
+insert into medicamente values(8,'paracetamol',2);
